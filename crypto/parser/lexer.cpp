@@ -213,6 +213,9 @@ const Lexem& Lexer::next() {
     return lexem.clear(src.here(), Lexem::Eof);
   }
   long long comm = 1;
+  // the code below is very complicated, because it tried to support one-symbol start/end and nesting
+  // in FunC v0.5.0 we decided to stop supporting nesting (it was never used in practice and almost impossible for js highlighters)
+  // when I'll move Lexer into FunC directly, I'll simplify this code (as well as lots of other)
   while (!src.seek_eof()) {
     int cc = src.cur_char(), nc = src.next_char();
     // note, that in practice (both in FunC and tlbc), [0]-th element is -256, condition for [0]-th is always false
@@ -236,14 +239,14 @@ const Lexem& Lexer::next() {
                   "`");
       }
       // note that in FunC, {- may be closed with */, but assume it's ok (we'll get rid of {- in the future)
-      comm >>= 1;
+      comm = 1;
       src.advance(2);
     } else if (cc == cmt_cl[0] || cc == cmt_cl2[0]) { // always false
       if (!(comm & 1)) {
         src.error(std::string{"a `"} + (char)cmt_op[1] + (char)cmt_op[2] + "` comment closed by `" + (char)cmt_cl[0] +
                   "`");
       }
-      comm >>= 1;
+      comm = 1;
       src.advance(1);
     } else {
       src.advance(1);

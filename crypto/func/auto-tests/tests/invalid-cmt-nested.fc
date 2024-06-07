@@ -1,0 +1,11 @@
+{-
+in FunC v0.5.0 we decided to drop nested comments support
+{-
+not nested
+ -}
+-}
+
+/*
+@compilation_should_fail
+@stderr error: `-}` is not a type identifier
+*/
